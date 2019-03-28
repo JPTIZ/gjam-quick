@@ -1,25 +1,31 @@
 cmake_minimum_required(VERSION 3.0)
 project(game CXX)
 
-set(SOURCES
-    game.cpp
-)
-
 add_library(game
     STATIC
-        ${SOURCES}
+        game.cpp
+)
+
+target_compile_features(game
+    PRIVATE
+        cxx_std_17
+)
+
+target_compile_options(game
+    PRIVATE
+        $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra>
+)
+
+target_compile_definitions(game
+    PRIVATE
+        $<$<CONFIG:Debug>:DEBUG>
 )
 
 target_include_directories(game
     PUBLIC
-        ${engine_SOURCE_DIR}
+        ${engine_SOURCE_DIR}/..
+        ${game_SOURCE_DIR}
         ${CMAKE_CURRENT_LIST_DIR}
-    PRIVATE
-        ${SFML_INCLUDE_DIR}
-)
-
-link_directories(
-    ${SFML_LIBRARY_DIRS}
 )
 
 target_link_libraries(${PROJECT_NAME}
