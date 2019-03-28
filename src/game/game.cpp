@@ -40,7 +40,7 @@ MapState::MapState():
     sprite.src_rect({{0, 0}, {int(sprite_size.x / 4), int(sprite_size.y)}});
     sprite.max_frames() = 4;
     sprite.setOrigin({17.f, 25.f});
-    player.move_to({400, 6 * 30});
+    player.move_to({5 * 30, 5 * 30});
 }
 
 
