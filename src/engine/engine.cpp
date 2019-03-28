@@ -7,21 +7,19 @@
 #include <SFML/OpenGL.hpp>
 
 namespace options {
+    using namespace std::string_literals;
 
-using namespace std::string_literals;
+    namespace window {
+        constexpr auto WIDTH = 640;
+        constexpr auto HEIGHT = 512;
+    }
 
-namespace window {
-    constexpr auto WIDTH = 800;
-    constexpr auto HEIGHT = 600;
-}
+    namespace game {
+        constexpr auto WIDTH = 320;
+        constexpr auto HEIGHT = 256;
+    }
 
-namespace game {
-    constexpr auto WIDTH = 588;
-    constexpr auto HEIGHT = 320;
-}
-
-const auto TITLE = "Super Mauro Kart!"s;
-
+    const auto TITLE = "Prawrtect the City!"s;
 }
 
 using namespace sf;

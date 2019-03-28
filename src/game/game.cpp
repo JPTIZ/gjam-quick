@@ -4,24 +4,24 @@ constexpr auto PLAYER_SPEED = 5;
 
 namespace {
 
+constexpr auto MAP_SIZE = engine::Size{11, 8};
+
 using Point = engine::Point;
 using engine::TILE_SIZE;
 
-using Row = std::array<int, 13>;
+using Row = std::array<int, MAP_SIZE.width>;
 
-const auto default_map = std::array<Row, 10>{
+const auto default_map = std::array<Row, MAP_SIZE.height>{
     Row
-//   0  1  2  3  4  5  6  7  8  9 10 11 12
-    {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, },
-    {3, 0, 3, 0, 3, 0, 3, 0, 3, 0, 3, 0, 3, },
-    {3, 0, 3, 0, 3, 0, 3, 0, 3, 0, 3, 0, 3, },
-    {3, 0, 3, 0, 3, 0, 3, 0, 3, 0, 3, 0, 3, },
-    {3, 0, 3, 0, 3, 0, 3, 0, 3, 0, 3, 0, 3, },
-    {3, 0, 3, 0, 3, 0, 3, 0, 3, 0, 3, 0, 3, },
-    {3, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 3, },
-    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, },
-    {3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, },
-    {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, },
+//   0  1  2  3  4  5  6  7  8  9 10
+    {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, },
+    {3, 0, 3, 0, 3, 0, 3, 0, 3, 0, 3, },
+    {3, 0, 3, 0, 3, 0, 3, 0, 3, 0, 3, },
+    {3, 0, 3, 0, 3, 0, 3, 0, 3, 0, 3, },
+    {3, 0, 1, 0, 1, 0, 1, 0, 1, 0, 3, },
+    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, },
+    {3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, },
+    {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, },
 };
 
 }
@@ -34,13 +34,13 @@ MapState::MapState():
         default_map
     }
 {
-    _map.setPosition({6, 0});
+    _map.setPosition({-15, 0});
     auto& sprite = player.sprite();
     auto sprite_size = sprite.getTexture()->getSize();
-    sprite.src_rect({{0, 0}, {sprite_size.x / 4, sprite_size.y}});
+    sprite.src_rect({{0, 0}, {int(sprite_size.x / 4), int(sprite_size.y)}});
     sprite.max_frames() = 4;
     sprite.setOrigin({17.f, 25.f});
-    player.move_to({400, 17 * 30});
+    player.move_to({400, 6 * 30});
 }
 
 
