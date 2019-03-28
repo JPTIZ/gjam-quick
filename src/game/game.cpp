@@ -33,10 +33,6 @@ const auto default_map = std::array<Row, 20>{
     {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, },
 };
 
-auto map_coords(const Point& p) {
-    return p;
-}
-
 }
 
 namespace game {
@@ -58,7 +54,16 @@ MapState::MapState():
 
 void MapState::draw(sf::RenderWindow& window) {
     window.draw(_map);
-    window.draw(player.sprite());
+
+    if (player.visible()) {
+        window.draw(player.sprite());
+    }
+
+    for (auto& enemy: enemies) {
+        if (enemy.visible()) {
+            window.draw(enemy.sprite());
+        }
+    }
 }
 
 
@@ -95,8 +100,11 @@ void MapState::update() {
 
 
 void MapState::update_enemies() {
+    if (frame_count % 10 == 0) {
+        // TODO: Show new enemy
+    }
     for (auto& enemy: enemies) {
-        // TODO
+        // TODO: Update enemies behaviour
     }
 }
 

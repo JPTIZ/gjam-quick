@@ -45,7 +45,16 @@ public:
         return _sprite;
     }
 
+    auto visible() const {
+        return _visible;
+    }
+
+    void visible(bool visible) {
+        _visible = visible;
+    }
+
 private:
+    bool _visible = true;
     engine::Point _pos;
     engine::Sprite _sprite{"res/bomberman.png"};
 };
