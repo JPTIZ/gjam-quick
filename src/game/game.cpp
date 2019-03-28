@@ -4,6 +4,9 @@ constexpr auto PLAYER_SPEED = 5;
 
 namespace {
 
+using Point = engine::Point;
+using engine::TILE_SIZE;
+
 using Row = std::array<int, 25>;
 
 const auto default_map = std::array<Row, 20>{
@@ -29,6 +32,10 @@ const auto default_map = std::array<Row, 20>{
     {3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, },
     {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, },
 };
+
+auto map_coords(const Point& p) {
+    return p;
+}
 
 }
 
@@ -59,22 +66,28 @@ void MapState::update() {
     update_enemies();
 
     auto player_speed = (keys[Keyboard::Key::X] ? 2 : 1) * PLAYER_SPEED;
+    auto player_offset = Point{0, 0};
 
     if (keys[Keyboard::Key::Left]) {
         player.sprite().setScale(1.f, 1.f);
-
-        player.move({-player_speed, 0});
-        if (frame_count % 7 == 0) {
-            player.sprite().next_frame();
-        }
+        player_offset += {-player_speed, 0};
     } else if (keys[Keyboard::Key::Right]) {
         player.sprite().setScale(-1.f, 1.f);
-        player.move({player_speed, 0});
+        player_offset += {player_speed, 0};
+    } else {
+        player.sprite().frame(0);
+    }
+
+    if (player_offset != Point{0, 0} and
+        _map.passable(player.pos() + player_offset - Point{45, 0})
+    ) {
+        player.move(player_offset);
         if (frame_count % 7 == 0) {
             player.sprite().next_frame();
         }
     } else {
         player.sprite().frame(0);
+        return;
     }
 
     ++frame_count;

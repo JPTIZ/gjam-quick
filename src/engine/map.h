@@ -10,6 +10,17 @@ namespace engine {
 
 constexpr auto TILE_SIZE = 30;
 
+template <size_t W, size_t H>
+inline auto copy_map(const std::array<std::array<int, W>, H>& map) {
+    auto vmap = std::vector<std::vector<int>>{};
+
+    for (auto& row: map) {
+        vmap.push_back({row.begin(), row.end()});
+    }
+
+    return vmap;
+}
+
 class Map: public sf::Sprite {
 public:
     template <size_t H, size_t W>
@@ -17,6 +28,7 @@ public:
         const std::array<std::array<int, W>, H>& mapping):
         sf::Sprite{},
         _size{int(W), int(H)},
+        _map{copy_map(mapping)},
         _tileset{from_file<sf::Image>(tileset)},
         _map_image{create_image(_size * TILE_SIZE)}
     {
@@ -44,8 +56,18 @@ public:
         setTexture(_map_texture);
     }
 
+    auto passable(const Point& p) const {
+        auto _p = p;
+        _p = Point{
+            _p.x / TILE_SIZE,
+            _p.y / TILE_SIZE
+        };
+        return _map[_p.y][_p.x] == 0 and _map[_p.y][_p.x + 1] == 0;
+    }
+
 private:
     Size _size;
+    std::vector<std::vector<int>> _map;
     sf::Image _tileset;
     sf::Image _map_image;
     sf::Texture _map_texture;

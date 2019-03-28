@@ -30,6 +30,14 @@ struct Point {
     auto operator-(const Point& p) const {
         return *this + (-p);
     }
+
+    auto operator==(const Point& p) const {
+        return x == p.x and y == p.y;
+    }
+
+    auto operator!=(const Point& p) const {
+        return not (*this == p);
+    }
 };
 
 struct Size {
