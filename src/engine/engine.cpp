@@ -10,8 +10,15 @@ namespace options {
 
 using namespace std::string_literals;
 
-constexpr auto WIDTH = 800;
-constexpr auto HEIGHT = 600;
+namespace window {
+    constexpr auto WIDTH = 800;
+    constexpr auto HEIGHT = 600;
+}
+
+namespace game {
+    constexpr auto WIDTH = 588;
+    constexpr auto HEIGHT = 320;
+}
 
 const auto TITLE = "Super Mauro Kart!"s;
 
@@ -35,7 +42,7 @@ namespace engine {
 
 GameWindow::GameWindow(std::unique_ptr<GameState>&& initial_state):
     window{
-        VideoMode{options::WIDTH, options::HEIGHT},
+        VideoMode{options::window::WIDTH, options::window::HEIGHT},
         options::TITLE,
     },
     state{std::move(initial_state)}
@@ -47,8 +54,8 @@ GameWindow::GameWindow(std::unique_ptr<GameState>&& initial_state):
 
     window.setView(sf::View{sf::FloatRect{
         0.f, 0.f,
-        static_cast<float>(options::WIDTH),
-        static_cast<float>(options::HEIGHT)
+        static_cast<float>(options::game::WIDTH),
+        static_cast<float>(options::game::HEIGHT)
     }});
 }
 
