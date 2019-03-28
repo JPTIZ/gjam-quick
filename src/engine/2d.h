@@ -35,6 +35,17 @@ struct Point {
 struct Size {
     int width;
     int height;
+
+    auto& operator*=(int s) {
+        *this = {width * s, height * s};
+        return *this;
+    }
+
+    auto operator*(int s) const {
+        auto copy = *this;
+        copy *= s;
+        return copy;
+    }
 };
 
 struct Rect {

@@ -10,3 +10,9 @@ sf::Texture engine::texture_from_file(const std::filesystem::path& path) {
 
     return tex;
 }
+
+sf::Image engine::create_image(Size size, const sf::Color& color) {
+    auto img = sf::Image{};
+    img.create(size.width, size.height, color);
+    return img;
+}

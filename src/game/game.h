@@ -1,28 +1,19 @@
 #ifndef SUPERMAUROKART_GAME_H
 #define SUPERMAUROKART_GAME_H
 
+#include <set>
+
 #include "engine/engine.h"
+#include "engine/map.h"
 #include "game/player.h"
-
-namespace {
-
-
-
-}
 
 namespace game {
 
 class MapState: public engine::GameState {
     using Keyboard = sf::Keyboard;
+    using Enemy = Player;
 public:
-    MapState() {
-        track.loadFromFile("res/battletrack1.png");
-        auto& sprite = player.sprite();
-        sprite.src_rect({{0, 0}, {34, 50}});
-        sprite.max_frames() = 4;
-        sprite.setOrigin({17.f, 25.f});
-        player.move_to({400, 400});
-    }
+    MapState();
 
     void draw(sf::RenderWindow& window) override;
 
@@ -35,11 +26,14 @@ public:
     }
 
     void update() override;
+
+    void update_enemies();
 private:
+    int frame_count = 0;
     Player player;
-    sf::Vector3f angle;
-    sf::Texture track;
+    engine::Map _map;
     std::map<Keyboard::Key, bool> keys;
+    std::set<Enemy> enemies;
 };
 
 

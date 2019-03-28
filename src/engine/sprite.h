@@ -6,8 +6,8 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "engine/2d.h"
-#include "engine/utils.h"
+#include "2d.h"
+#include "utils.h"
 
 namespace engine {
 

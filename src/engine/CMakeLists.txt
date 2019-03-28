@@ -4,6 +4,7 @@ project(engine CXX)
 add_library(engine
     STATIC
         engine.cpp
+        utils.cpp
 )
 
 target_compile_features(engine
@@ -26,8 +27,11 @@ target_include_directories(engine
         ${CMAKE_CURRENT_LIST_DIR}
 )
 
+message("Linking for ${PROJECT_NAME}")
+
 target_link_libraries(${PROJECT_NAME}
-    PRIVATE
+    PUBLIC
         stdc++fs
+    PRIVATE
         sfml-graphics
 )

@@ -24,6 +24,9 @@ target_link_libraries(app
     PUBLIC
         engine
         game
+        stdc++fs
+        sfml-window
+        sfml-system
 )
 
 target_include_directories(app

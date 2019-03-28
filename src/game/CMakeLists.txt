@@ -24,11 +24,14 @@ target_compile_definitions(game
 target_include_directories(game
     PUBLIC
         ${engine_SOURCE_DIR}/..
+        ${engine_SOURCE_DIR}
         ${game_SOURCE_DIR}
         ${CMAKE_CURRENT_LIST_DIR}
 )
 
 target_link_libraries(${PROJECT_NAME}
+    PUBLIC
+        engine
     PRIVATE
         sfml-graphics
 )
