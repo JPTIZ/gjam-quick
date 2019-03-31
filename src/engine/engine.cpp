@@ -1,26 +1,12 @@
 #include "engine.h"
 
 #include <iostream>
-#include <string>
 
 #include <SFML/Graphics.hpp>
 #include <SFML/OpenGL.hpp>
 
-namespace options {
-    using namespace std::string_literals;
-
-    namespace window {
-        constexpr auto WIDTH = 640;
-        constexpr auto HEIGHT = 512;
-    }
-
-    namespace game {
-        constexpr auto WIDTH = 320;
-        constexpr auto HEIGHT = 256;
-    }
-
-    const auto TITLE = "Prawrtect the City!"s;
-}
+#include "2d.h"
+#include "options.h"
 
 using namespace sf;
 
@@ -77,7 +63,7 @@ void GameWindow::main_loop() {
         }
 
         if (state) {
-            state->update();
+            state->update(*this);
         }
 
         window.clear();
@@ -92,13 +78,25 @@ void GameWindow::main_loop() {
 
 void GameWindow::on_resize(const Event::SizeEvent& size) {
     auto [width, height] = size;
-    auto ratio = (int)width / height;
 
-    //window.setView(sf::View{sf::FloatRect{
-    //    0.f, 0.f,
-    //    static_cast<float>(size.width),
-    //    static_cast<float>(size.height)
-    //}});
+    auto ratio = Size{
+        static_cast<int>(width / options::game::WIDTH),
+        static_cast<int>(height / options::game::HEIGHT),
+    };
+
+    if (ratio.width < 0 or ratio.height < 0) {
+        window.setSize({options::game::WIDTH, options::game::HEIGHT});
+        return;
+    }
+
+    /*
+    window.setView(sf::View{{
+        -(int(width) - ratio.width * options::game::WIDTH) / 2.f,
+        0.f,
+        static_cast<float>(ratio.width * options::game::WIDTH),
+        static_cast<float>(options::game::HEIGHT)
+    }});
+    */
 }
 
 void GameWindow::show() {

@@ -1,6 +1,8 @@
 #ifndef GJAM_QUICK_ENGINE_MAP_H
 #define GJAM_QUICK_ENGINE_MAP_H
 
+#include <set>
+
 #include <SFML/Graphics.hpp>
 
 #include "2d.h"
@@ -8,7 +10,14 @@
 
 namespace engine {
 
-constexpr auto TILE_SIZE = 30;
+constexpr auto TILE_SIZE = 32;
+
+const static auto passable_tiles = std::set{15, 16, 17};
+
+template <typename T>
+inline auto contains(const std::set<T>& s, T v) {
+    return std::find(std::begin(s), std::end(s), v) != std::end(s);
+}
 
 template <size_t W, size_t H>
 inline auto copy_map(const std::array<std::array<int, W>, H>& map) {
@@ -62,7 +71,8 @@ public:
             _p.x / TILE_SIZE,
             _p.y / TILE_SIZE
         };
-        return _map[_p.y][_p.x] == 0 and _map[_p.y][_p.x + 1] == 0;
+        return contains(passable_tiles, _map[_p.y][_p.x]) and
+            contains(passable_tiles, _map[_p.y][_p.x + 1]);
     }
 
 private:

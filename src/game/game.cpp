@@ -1,5 +1,10 @@
 #include "game.h"
 
+#include <iostream>
+#include <random>
+
+#include "../engine/options.h"
+
 constexpr auto PLAYER_SPEED = 5;
 
 namespace {
@@ -14,15 +19,27 @@ using Row = std::array<int, MAP_SIZE.width>;
 const auto default_map = std::array<Row, MAP_SIZE.height>{
     Row
 //   0  1  2  3  4  5  6  7  8  9 10
-    {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, },
-    {3, 0, 3, 0, 3, 0, 3, 0, 3, 0, 3, },
-    {3, 0, 3, 0, 3, 0, 3, 0, 3, 0, 3, },
-    {3, 0, 3, 0, 3, 0, 3, 0, 3, 0, 3, },
-    {3, 0, 1, 0, 1, 0, 1, 0, 1, 0, 3, },
-    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, },
-    {3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, },
-    {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, },
+    {0, 0, 1, 2, 1, 2, 1, 2, 1, 0, 0, },
+    {0, 0, 3, 4, 3, 4, 3, 4, 3, 0, 0, },
+    {0, 0, 5, 6, 5, 6, 5, 6, 5, 0, 0, },
+    {0, 0, 7, 7, 7, 7, 7, 7, 7, 0, 0, },
+    {0, 0, 8, 9, 8, 9, 8, 9, 8, 0, 0, },
+    {0, 0,10,11,10,11,10,11,10, 0, 0, },
+    {0, 0,12,13,13,13,13,13,14, 0, 0, },
+    {0, 0,15,16,16,16,16,16,17, 0, 0, },
 };
+
+void create_enemy(std::vector<game::Enemy>& enemies) {
+    auto randomizer = std::mt19937{std::random_device{}()};
+    auto distr = std::uniform_int_distribution<>{0, 5};
+
+    auto lane = 2 + distr(randomizer);
+
+    enemies.emplace_back();
+
+    auto& enemy = enemies.back();
+    enemy.move_to({lane * engine::TILE_SIZE, 10});
+}
 
 }
 
@@ -30,17 +47,11 @@ namespace game {
 
 MapState::MapState():
     _map{
-        "res/tileset.png",
+        "res/img/map_tileset.png",
         default_map
     }
 {
-    _map.setPosition({-15, 0});
-    auto& sprite = player.sprite();
-    auto sprite_size = sprite.getTexture()->getSize();
-    sprite.src_rect({{0, 0}, {int(sprite_size.x / 4), int(sprite_size.y)}});
-    sprite.max_frames() = 4;
-    sprite.setOrigin({17.f, 25.f});
-    player.move_to({5 * 30, 5 * 30});
+    player.move_to({5 * 32, 7 * 32});
 }
 
 
@@ -59,9 +70,17 @@ void MapState::draw(sf::RenderWindow& window) {
 }
 
 
-void MapState::update() {
-    update_enemies();
+void MapState::update(engine::GameWindow& w) {
+    (void)w;
 
+    update_enemies();
+    update_player();
+
+    ++frame_count;
+}
+
+
+void MapState::update_player() {
     auto player_speed = (keys[Keyboard::Key::X] ? 2 : 1) * PLAYER_SPEED;
     auto player_offset = Point{0, 0};
 
@@ -76,7 +95,7 @@ void MapState::update() {
     }
 
     if (player_offset != Point{0, 0} and
-        _map.passable(player.pos() + player_offset - Point{45, 0})
+        _map.passable(player.pos() + player_offset - Point{15, 0})
     ) {
         player.move(player_offset);
         if (frame_count % 7 == 0) {
@@ -86,18 +105,31 @@ void MapState::update() {
         player.sprite().frame(0);
         return;
     }
-
-    ++frame_count;
 }
 
 
 void MapState::update_enemies() {
-    if (frame_count % 10 == 0) {
-        // TODO: Show new enemy
+    if (frame_count % 100 == 0) {
+        create_enemy(enemies);
     }
+
+    auto new_vec = std::vector<Enemy>{};
+
     for (auto& enemy: enemies) {
         // TODO: Update enemies behaviour
+        if (not enemy.being_hold()) {
+            enemy.move({0, 1});
+            if (frame_count % 15 == 0) {
+                enemy.sprite().next_frame();
+            }
+
+            if (enemy.pos().y < options::game::HEIGHT) {
+                new_vec.push_back(std::move(enemy));
+            }
+        }
     }
+
+    enemies = std::move(new_vec);
 }
 
 }

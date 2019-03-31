@@ -1,8 +1,9 @@
 #ifndef GJAM_QUICK_ENGINE_SPRITE_H
 #define GJAM_QUICK_ENGINE_SPRITE_H
 
-#include <string>
 #include <exception>
+#include <iostream>
+#include <string>
 
 #include <SFML/Graphics.hpp>
 
@@ -13,14 +14,45 @@ namespace engine {
 
 class Sprite: public sf::Sprite {
 public:
-    Sprite(const std::string& texture):
+    Sprite(const std::filesystem::path& texture):
         sf::Sprite{},
         _texture{texture_from_file(texture)}
     {
         setTexture(_texture);
 
         auto [width, height] = _texture.getSize();
-        _src_rect = {{0, 0}, {int(width), int(height)}};
+        src_rect({{0, 0}, {int(width), int(height)}});
+    }
+
+    Sprite(Sprite&& s):
+        sf::Sprite{std::move(s)},
+        _frame{std::move(s._frame)},
+        _max_frames{std::move(s._max_frames)},
+        _src_rect{std::move(s._src_rect)},
+        _texture{s._texture}
+    {
+        std::cout << "Moving sprite.\n";
+    }
+
+    Sprite(const Sprite& s):
+        sf::Sprite{s},
+        _frame{s._frame},
+        _max_frames{s._max_frames},
+        _src_rect{s._src_rect},
+        _texture{s._texture}
+    {
+        std::cout << "Copying sprite.\n";
+        setTexture(_texture);
+
+        src_rect(s._src_rect);
+    }
+
+    auto& operator=(const Sprite& s) {
+        if (this == &s) {
+            return *this;
+        }
+
+        return *this;
     }
 
     auto frame() const {
@@ -33,6 +65,15 @@ public:
 
     void frame(int frame) {
         _frame = frame;
+        update_texture_frame();
+    }
+
+    const auto animation() const {
+        return _animation;
+    }
+
+    void animation(int animation) {
+        _animation = animation;
         update_texture_frame();
     }
 
@@ -60,7 +101,7 @@ private:
 
         setTextureRect({
             x + _frame * width,
-            y,
+            y + _animation * height,
             width,
             height,
         });
@@ -68,8 +109,9 @@ private:
 
     int _frame = 0;
     int _max_frames = 0;
+    int _animation = 0;
     Rect _src_rect;
-    sf::Texture _texture;
+    sf::Texture& _texture;
 };
 
 }

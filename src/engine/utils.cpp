@@ -1,14 +1,32 @@
 #include "utils.h"
 
+#include <iostream>
+#include <map>
 
-sf::Texture engine::texture_from_file(const std::filesystem::path& path) {
+
+sf::Texture& engine::texture_from_file(const std::filesystem::path& path) {
+    static auto loaded = std::map<std::filesystem::path, sf::Texture>{};
+
+    {
+        auto cached = loaded.find(path);
+        if (cached != loaded.end()) {
+            std::cout << "Using cached " << path << " texture.\n";
+
+            return cached->second;
+        }
+    }
+
     auto tex = sf::Texture{};
 
     if (not tex.loadFromFile(path)) {
         throw std::invalid_argument("Could not load texture: " + path.string());
     }
 
-    return tex;
+    loaded.emplace(std::make_pair(path, tex));
+
+    std::cout << "Loaded " << path << " texture.\n";
+
+    return loaded[path];
 }
 
 sf::Image engine::create_image(Size size, const sf::Color& color) {

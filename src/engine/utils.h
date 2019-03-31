@@ -11,7 +11,7 @@
 
 namespace engine {
 
-sf::Texture texture_from_file(const std::filesystem::path& path);
+sf::Texture& texture_from_file(const std::filesystem::path& path);
 sf::Image create_image(Size size, const sf::Color& = {0, 0, 0, 0});
 
 template <typename T>

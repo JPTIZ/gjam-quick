@@ -3,12 +3,13 @@ project(game CXX)
 
 add_library(game
     STATIC
+        intro.cpp
         game.cpp
 )
 
 target_compile_features(game
     PRIVATE
-        cxx_std_17
+        cxx_std_20
 )
 
 target_compile_options(game

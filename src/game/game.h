@@ -1,18 +1,18 @@
-#ifndef SUPERMAUROKART_GAME_H
-#define SUPERMAUROKART_GAME_H
+#ifndef GJAM_QUICK_GAME_GAME_H
+#define GJAM_QUICK_GAME_GAME_H
 
-#include <set>
+#include <vector>
 
-#include "engine/engine.h"
-#include "engine/map.h"
-#include "game/player.h"
+#include "../engine/engine.h"
+#include "../engine/map.h"
+#include "player.h"
 
 namespace game {
 
 class MapState: public engine::GameState {
-    using Keyboard = sf::Keyboard;
-    using Enemy = Player;
 public:
+    using Keyboard = sf::Keyboard;
+
     MapState();
 
     void draw(sf::RenderWindow& window) override;
@@ -25,15 +25,16 @@ public:
         keys[key] = false;
     }
 
-    void update() override;
+    void update(engine::GameWindow&) override;
 
     void update_enemies();
+    void update_player();
 private:
     int frame_count = 0;
     Player player;
     engine::Map _map;
     std::map<Keyboard::Key, bool> keys;
-    std::set<Enemy> enemies;
+    std::vector<Enemy> enemies{};
 };
 
 
