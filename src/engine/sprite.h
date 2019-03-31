@@ -31,10 +31,11 @@ public:
         _src_rect{std::move(s._src_rect)},
         _texture{s._texture}
     {
-        std::cout << "Moving sprite.\n";
+        // std::cout << "Moving sprite.\n";
     }
 
-    Sprite(const Sprite& s):
+    Sprite(const Sprite& s) =  delete;
+    /*
         sf::Sprite{s},
         _frame{s._frame},
         _max_frames{s._max_frames},
@@ -46,6 +47,9 @@ public:
 
         src_rect(s._src_rect);
     }
+    */
+
+    // ~Sprite() { std::cout << "~Sprite();\n"; }
 
     auto& operator=(const Sprite& s) {
         if (this == &s) {

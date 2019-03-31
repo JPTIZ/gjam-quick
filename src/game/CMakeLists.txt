@@ -35,4 +35,5 @@ target_link_libraries(${PROJECT_NAME}
         engine
     PRIVATE
         sfml-graphics
+        sfml-audio
 )

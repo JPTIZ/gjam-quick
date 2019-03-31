@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include <SFML/Audio.hpp>
+
 #include "../engine/engine.h"
 #include "../engine/map.h"
 #include "player.h"
@@ -29,12 +31,16 @@ public:
 
     void update_enemies();
     void update_player();
+
 private:
     int frame_count = 0;
+    int spawn_delay = 60;
+    int spawn_enemy_speed = 1;
     Player player;
     engine::Map _map;
     std::map<Keyboard::Key, bool> keys;
-    std::vector<Enemy> enemies{};
+    std::vector<Enemy*> enemies{};
+    sf::Music bgm;
 };
 
 

@@ -37,7 +37,7 @@ GameWindow::GameWindow(std::unique_ptr<GameState>&& initial_state):
     window.setFramerateLimit(60);
 
     window.setView(sf::View{sf::FloatRect{
-        0.f, 0.f,
+        -15.f, 0.f,
         static_cast<float>(options::game::WIDTH),
         static_cast<float>(options::game::HEIGHT)
     }});
