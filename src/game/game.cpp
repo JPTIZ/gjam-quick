@@ -21,6 +21,8 @@ using engine::TILE_SIZE;
 
 using Row = std::array<int, MAP_SIZE.width>;
 
+static auto randomizer = std::mt19937{std::random_device{}()};
+
 const auto default_map = std::array<Row, MAP_SIZE.height>{
     Row
 //   0  1  2  3  4  5  6  7  8
@@ -34,8 +36,19 @@ const auto default_map = std::array<Row, MAP_SIZE.height>{
     {0,15,16,16,16,16,16,17, 0,},
 };
 
+auto random_song() {
+    const auto songs = std::array<std::string, 4>{
+        "genese-lowsound.ogg",
+        "genese3.ogg",
+        "nesssssss.ogg",
+        "amiguito.ogg",
+    };
+    auto distr = std::uniform_int_distribution<>{0, songs.size() - 1};
+
+    return songs[distr(randomizer)];
+}
+
 void create_enemy(std::vector<Enemy*>& enemies, int enemy_speed) {
-    static auto randomizer = std::mt19937{std::random_device{}()};
     auto distr = std::uniform_int_distribution<>{0, 5};
 
     auto lane = 2 + distr(randomizer);
@@ -81,13 +94,59 @@ MapState::MapState():
     }
 {
     player.move_to({5 * 32, 7 * 32});
-    if (not bgm.openFromFile("res/mus/nesssssss.ogg")) {
-        std::cout << "Failed to load music :(\n";
-        return;
+
+    if (not font.loadFromFile("res/font/PIXELADE.TTF")) {
+        std::cout << "Failed to load font :(\n";
+    } else {
+        text_points.setFont(font);
+        text_points_label.setFont(font);
     }
 
-    bgm.setLoop(true);
-    bgm.play();
+    text_points.setPosition({-8, 16});
+    text_points_label.setPosition({-8, 4});
+    text_points_label.setFillColor({192, 192, 0});
+
+    lives_label.setPosition({8 + 8 * 32, 4});
+    lives_label.setFillColor({192, 192, 0});
+
+    auto song = random_song();
+
+    std::cout << "Loaded " << song << " song" << std::endl;
+    if (not bgm.openFromFile("res/mus/" + song)) {
+        std::cout << "Failed to load music :(\n";
+    } else {
+        bgm.setLoop(true);
+        bgm.play();
+    }
+
+    for (auto i = 0; i < lives; ++i) {
+        auto life = Life{};
+
+        auto& sprite = life.sprite();
+        sprite.setPosition(8 + 8 * 32, 20 + 32 * i);
+
+        life_sprites.push_back(std::move(life));
+    }
+
+    lost.setPosition(145, -10);
+    lost.setFillColor(COLORS[0]);
+    lost.setOutlineColor(COLORS[1]);
+    lost.setOutlineThickness(2);
+    lost.setOrigin(lost.getLocalBounds().width / 2, 0);
+
+    little_msg.setPosition(145, 120);
+    little_msg.setLetterSpacing(3.f);
+    little_msg.setFillColor(COLORS[0]);
+    little_msg.setOutlineColor(COLORS[1]);
+    little_msg.setOutlineThickness(2);
+    little_msg.setOrigin(little_msg.getLocalBounds().width / 2, 0);
+
+    paused_text.setPosition(145, 120);
+    paused_text.setLetterSpacing(3.f);
+    paused_text.setFillColor(COLORS[0]);
+    paused_text.setOutlineColor(COLORS[1]);
+    paused_text.setOutlineThickness(2);
+    paused_text.setOrigin(paused_text.getLocalBounds().width / 2, 0);
 }
 
 
@@ -109,33 +168,66 @@ void MapState::draw(sf::RenderWindow& window) {
             window.draw(enemy->sprite());
         }
     }
+
+    window.draw(text_points_label);
+    window.draw(text_points);
+    window.draw(lives_label);
+
+    for (auto& life: life_sprites) {
+        window.draw(life.sprite());
+    }
+
+    if (lives == 0) {
+        window.draw(lost);
+        window.draw(little_msg);
+    }
+
+    if (paused) {
+        window.draw(paused_text);
+    }
 }
 
 
 void MapState::update(engine::GameWindow& w) {
     (void)w;
-    static auto paused = false;
 
-    if (paused) {
-        if (keys[Key::Return]) {
-            paused = false;
-            bgm.play();
+    if (lives > 0) {
+        if (paused) {
+            if (keys[Key::Return]) {
+                paused = false;
+                bgm.play();
 
-            keys[Key::Return] = false;
+                keys[Key::Return] = false;
+            }
+
+            return;
         }
 
-        return;
-    }
-
-    if (keys[Key::Return]) {
-        paused = true;
-        bgm.pause();
-        keys[Key::Return] = false;
-        return;
+        if (keys[Key::Return]) {
+            paused = true;
+            bgm.pause();
+            keys[Key::Return] = false;
+            return;
+        }
     }
 
     update_enemies();
-    update_player();
+
+    if (lives > 0) {
+        update_player();
+    } else {
+        if (keys[Key::Return]) {
+            w.change_state(
+                std::make_unique<game::MapState>()
+            );
+        }
+    }
+
+    for (auto& life: life_sprites) {
+        if (frame_count % 5 == 0) {
+            life.update();
+        }
+    }
 
     ++frame_count;
 }
@@ -191,13 +283,10 @@ void MapState::update_player() {
 
 
 void MapState::update_enemies() {
-    static auto spawn_count = 0;
-    static auto last_spawn = 0;
-
     if (frame_count - last_spawn == spawn_delay) {
         create_enemy(enemies, spawn_enemy_speed);
         std::cout << "Enemy created! ("
-            << "Spawn delay: " << spawn_delay << ","
+            << "Spawn delay: " << spawn_delay << ", "
             << "Speed: " << spawn_enemy_speed << ")\n";
         ++spawn_count;
 
@@ -213,6 +302,9 @@ void MapState::update_enemies() {
     }
 
     auto new_vec = std::vector<Enemy*>{};
+    auto streak = 0;
+
+    constexpr auto POINTS_PER_STREAK = 5;
 
     for (auto& enemy: enemies) {
         if (enemy->jumping()) {
@@ -220,15 +312,26 @@ void MapState::update_enemies() {
             --enemy->jump_time();
 
             for (auto& other: enemies) {
-                if (enemy != other and nearby(enemy, other, 16)) {
+                if (enemy != other and nearby(enemy, other, 24)) {
                     std::cout << "Nearby enemies!\n";
+
+                    ++streak;
+
                     enemy->destroyed() = true;
                     other->destroyed() = true;
+
+                    points += POINTS_PER_STREAK * streak;
                 }
             }
+
+            text_points.setString(std::to_string(points));
         } else if (enemy->jump_time() == 1) {
             std::cout << "POW!\n";
             enemy->destroyed() = true;
+            points += 1;
+
+            text_points.setString(std::to_string(points));
+
             continue;
         } else if (not enemy->being_hold()) {
             enemy->move({0, enemy->speed()});
@@ -236,13 +339,26 @@ void MapState::update_enemies() {
                 enemy->sprite().next_frame();
             }
         } else {
-            enemy->move_to(player.pos() - Point{0, 15});
+            enemy->move_to(player.pos() - Point{0, 20});
         }
 
         if (enemy->destroyed()) {
             delete enemy;
         } else if (enemy->pos().y < options::game::HEIGHT) {
             new_vec.push_back(std::move(enemy));
+        } else {
+            if (lives > 0) {
+                --lives;
+                life_sprites[lives].loose();
+
+                std::cout << "Lost one life (" << lives << " remaining).\n";
+            }
+
+            if (lives == 0) {
+                std::cout << "Lost!\n";
+            }
+
+            delete enemy;
         }
     }
 

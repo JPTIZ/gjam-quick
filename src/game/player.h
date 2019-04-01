@@ -189,14 +189,12 @@ public:
     }
 
     void hold(Enemy* enemy) {
-        std::cout << "HOLD!\n";
         _holding = enemy;
         sprite().animation(2);
         sprite().max_frames() = 1;
     }
 
     auto drop() {
-        std::cout << "DROP!\n";
         auto object = _holding;
         _holding = nullptr;
         sprite().max_frames() = 2;
@@ -205,6 +203,48 @@ public:
 
 private:
     Enemy* _holding = nullptr;
+};
+
+class Life: public GameObject {
+public:
+    Life():
+        GameObject{"res/img/life.png"}
+    {
+        auto& _sprite = sprite();
+        _sprite.max_frames() = 1;
+        _sprite.animation(0);
+
+        auto sprite_size = _sprite.getTexture()->getSize();
+
+        auto [frame_width, frame_height] = std::pair{
+            int(sprite_size.x / 5),
+            int(sprite_size.y),
+        };
+
+        _sprite.src_rect({
+            {0, 0},
+            {frame_width, frame_height}
+        });
+    }
+
+    void update() {
+        auto& _sprite = sprite();
+        if (_lost and _sprite.frame() != 4) {
+            _sprite.next_frame();
+        }
+    }
+
+    auto lost() const {
+        return _lost;
+    }
+
+    void loose() {
+        _lost = true;
+        sprite().max_frames() = 5;
+    }
+
+private:
+    bool _lost = false;
 };
 
 }
