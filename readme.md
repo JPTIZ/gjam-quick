@@ -1,35 +1,39 @@
-Super Mauro Kart
-================
+GameJam Quick
+=============
 
-Sobre
+About
 -----
 
-Primeiro: não sei o quão público isto aqui deveria ser, mas, enfim, não é para
-maus-fins. É só porque brincadeiras com nomes são legais. No fundo no fundo
-todos amam o titio-Mauro.
+A simple game made reeeeeeally quick for UFSC's 2nd GameJam.
+You can check the submission in [in the itch.io
+project](https://jptiz.itch.io/prawrtect-the-city).
 
+Build
+-----
 
-Compilar
---------
+### CMake
 
-Compilar pela primeira vez:
+For CMake 3.13+:
 
-```bash
-mkdir build
-cd build
-cmake ../src
-make
+```console
+$ cmake -B build src -D CMAKE_BUILD_TYPE=Release
+$ cmake --build build
 ```
 
-Depois disso, basta chamar `make` dentro de `build/` quando for recompilar.
+After that, you can **copy ./build/app/app** executable to the current
+directory:
 
+```console
+$ cp ./build/app/app .
+```
 
-TO-DO'S
--------
+Run
+---
 
-1. Criar janelinha com SFML;
-2. Exibir mapa 2D à la Mode-7 da maneira mais porca possível;
-3. Jogar um player movível no meio;
-4. Criar sistema de colisão com paredes;
-5. Por aí vai;
-6. Isso aqui vai longe (espero que não muito).
+Run the `app` executable:
+
+```console
+$ ./app
+```
+
+Make sure you have `res/` on the same directory you're running the command.
